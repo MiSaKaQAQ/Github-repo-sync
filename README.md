@@ -22,12 +22,12 @@
 ###### 1.创建personal access token
 步骤:
 - 右上角头像 > Settings > Developer settings > Personal access tokens > Generate new token
-- Note可以随便填，勾选下方复选框`read:user`，点击`Generate token`
+- Note可以随便填，勾选下方复选框`user`，点击`Generate token`
 - 之后复制出现的密匙，注意这个密匙**仅显示一次**请务必保存好
 
 注意事项:
 - 在获取token时请将`Expiration`设置为`No expiration`以防止token过期
-- 请务必至少给予token`read:user`权限以便验证token是否正确
+- 请务必至少给予token`user`权限以便验证token是否正确
 - 详细步骤见[GitHub Docs](https://docs.github.com/cn/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-token)
 
 ###### 2.登录
