@@ -546,7 +546,7 @@ while True:
         print_title()
         print(Fore.YELLOW +
               "在获取token时请将「Expiration」设置为「No expiration」以防止token过期\n"
-              "请务必至少给予token「read:user」权限以便验证token是否正确\n" +
+              "请务必至少给予token「user」权限以便验证token是否正确\n" +
               Style.RESET_ALL +
               Fore.CYAN +
               "如何获取OAuth token:\n"
