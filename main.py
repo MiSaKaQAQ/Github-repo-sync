@@ -472,7 +472,7 @@ def sync_repo(repo: str) -> dict:
                 return result
             page_num = page_num + 1
     if repo_list[sync_repo_num]["sync_source_code"] is True:
-        print(Fore.CYAN + "正在拉取源码..." + Style.RESET_ALL)
+        print()
         sync_source_code_return = sync_source_code(repo)
         if sync_source_code_return["err"] != 0:
             return sync_source_code_return
@@ -488,6 +488,7 @@ def sync_source_code(repo: str) -> dict:
         os.mkdir(config["storge_dir"] + repo.replace("/", " "))
     if not os.path.exists(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"):
         os.mkdir(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code")
+    print(Fore.CYAN + "正在拉取源码..." + Style.RESET_ALL)
     # noinspection PyBroadException
     try:
         repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
