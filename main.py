@@ -546,7 +546,7 @@ while True:
         print_title()
         print(Fore.YELLOW +
               "在获取token时请将「Expiration」设置为「No expiration」以防止token过期\n"
-              "请务必至少给予token「user」权限以便验证token是否正确\n" +
+              "请务必至少给予token`user`权限以及`public_repo`权限，另外如果需要同步私有储存库请给予完整的`repo`权限\n" +
               Style.RESET_ALL +
               Fore.CYAN +
               "如何获取OAuth token:\n"
@@ -764,13 +764,16 @@ while True:
         os.system("pause")
     elif choice == "3":
         print_title()
+        if_sync_success = True
         for i in range(0, len(repo_list)):
             sync_repo_return = sync_repo(repo_list[i]["repo"])
             if sync_repo_return["err"] != 0:
                 print(Fore.RED + "\n\n\n同步出现错误" + Style.RESET_ALL)
-                os.system("paue")
-                continue
-        print(Fore.GREEN + "\n\n\n全部同步完成" + Style.RESET_ALL)
+                print(json.dumps(sync_repo_return))
+                if_sync_success = False
+                break
+        if if_sync_success:
+            print(Fore.GREEN + "\n\n\n全部同步完成" + Style.RESET_ALL)
         os.system("pause")
     elif choice == "4":
         print_title()

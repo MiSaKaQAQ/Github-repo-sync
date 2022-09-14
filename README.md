@@ -27,7 +27,7 @@
 
 注意事项:
 - 在获取token时请将`Expiration`设置为`No expiration`以防止token过期
-- 请务必至少给予token`user`权限以便验证token是否正确
+- 请务必至少给予token`user`权限以及`public_repo`权限，另外如果需要同步私有储存库请给予完整的`repo`权限
 - 详细步骤见[GitHub Docs](https://docs.github.com/cn/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-token)
 
 ###### 2.登录
