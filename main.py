@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import time
+import shutil
 
 import requests
 import urllib3
@@ -507,6 +508,41 @@ def sync_source_code(repo: str) -> dict:
         return {
             "err": 0
         }
+    while True:
+        input_choice = input(Fore.CYAN +
+                             "git pull失败，您可以选择「False」以终止同步或者手动删除本地储存库后输入「True」以继续同步(「True」/「False」):\n"
+                             + Style.RESET_ALL)
+        if input_choice.lower() in ["t", "true"]:
+            input_choice = True
+            break
+        elif input_choice.lower() in ["f", "false"]:
+            input_choice = False
+            break
+        else:
+            print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+            os.system("pause")
+    if input_choice:
+        if not os.path.exists(config["storge_dir"] + repo.replace("/", " ")):
+            os.mkdir(config["storge_dir"] + repo.replace("/", " "))
+        if not os.path.exists(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"):
+            os.mkdir(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code")
+        try:
+            repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+        except BaseException:
+            git = Git(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+            git.init()
+            repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+        g = repo_object.git
+        for j in range(0, 3):
+            try:
+                g.pull(config["clone_mirror"] + repo + ".git")
+            except Exception as e:
+                print(e)
+                print("retrying(" + str(j + 1) + ")...")
+                continue
+            return {
+                "err": 0
+            }
     return {
         "err": 3
     }
@@ -547,7 +583,7 @@ while True:
         print_title()
         print(Fore.YELLOW +
               "在获取token时请将「Expiration」设置为「No expiration」以防止token过期\n"
-              "请务必至少给予token`user`权限以及`public_repo`权限，另外如果需要同步私有储存库请给予完整的`repo`权限\n" +
+              "请务必至少给予token「user」权限以及「public_repo」权限，另外如果需要同步私有储存库请给予完整的「repo」权限\n" +
               Style.RESET_ALL +
               Fore.CYAN +
               "如何获取OAuth token:\n"
