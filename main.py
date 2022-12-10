@@ -189,7 +189,7 @@ def download(url: str, title: str, path: str) -> dict:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
     }
     resp = requests.get(url, stream=True, headers=download_headers,
-                        verify=config["ssl_vertify"], timeout=180)
+                        verify=config["ssl_vertify"], timeout=300)
     total = int(resp.headers.get('content-length', 0))
     with open(path, 'wb') as file1, tqdm(
             desc=title,
