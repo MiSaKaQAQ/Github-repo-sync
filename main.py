@@ -54,7 +54,8 @@ def clear_console() -> None:
 def load_sync_info() -> None:
     global sync_info
     if os.path.isfile(config["storge_dir"] + "sync_info.json"):
-        sync_info_file = open(config["storge_dir"] + "sync_info.json", "r", encoding='utf-8')
+        sync_info_file = open(
+            config["storge_dir"] + "sync_info.json", "r", encoding='utf-8')
         sync_info = json.load(sync_info_file)
         sync_info_file.close()
     else:
@@ -66,7 +67,8 @@ def save_sync_info() -> None:
     global sync_info
     if os.path.exists(config["storge_dir"]) is False:
         os.mkdir(config["storge_dir"])
-    sync_info_file = open(config["storge_dir"] + "sync_info.json", "w", encoding='utf-8')
+    sync_info_file = open(config["storge_dir"] +
+                          "sync_info.json", "w", encoding='utf-8')
     json.dump(sync_info, sync_info_file)
     sync_info_file.close()
 
@@ -78,10 +80,10 @@ def check_login(username: str, token: str) -> dict:
                             headers={
                                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
                                 'Content-type': 'application/json'
-                            },
-                            auth=(username, token),
-                            verify=config["ssl_vertify"],
-                            timeout=60)
+        },
+            auth=(username, token),
+            verify=config["ssl_vertify"],
+            timeout=60)
     except ConnectionError or TimeoutError:
         return {
             "err": -3
@@ -119,9 +121,9 @@ def check_repo(repo: str) -> dict:
         req = requests.get(url=config["github_proxy"] + repo,
                            headers={
                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
-                           },
-                           timeout=60,
-                           verify=config["ssl_vertify"])
+        },
+            timeout=60,
+            verify=config["ssl_vertify"])
     except ConnectionError or TimeoutError:
         return {
             "err": -3
@@ -186,7 +188,8 @@ def download(url: str, title: str, path: str) -> dict:
     download_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
     }
-    resp = requests.get(url, stream=True, headers=download_headers, verify=config["ssl_vertify"])
+    resp = requests.get(url, stream=True, headers=download_headers,
+                        verify=config["ssl_vertify"], timeout=180)
     total = int(resp.headers.get('content-length', 0))
     with open(path, 'wb') as file1, tqdm(
             desc=title,
@@ -228,7 +231,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
         Etag = ""
     try:
         req = requests.get(
-            url=config["github_api_proxy"] + "repos/" + repo + "/releases?per_page=100&page=" + str(page),
+            url=config["github_api_proxy"] + "repos/" + repo +
+            "/releases?per_page=100&page=" + str(page),
             headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
                 'Content-type': 'application/json',
@@ -284,7 +288,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
         print("\nRelease ID: " + str(releases[j]["id"]) + "(p" + str(page) + ": " + str(j + 1) + "/" + str(
             len(releases)) + ")")
         # 根据rename rule生成release名字
-        date = datetime.datetime.strptime(releases[j]["published_at"], "%Y-%m-%dT%H:%M:%SZ")
+        date = datetime.datetime.strptime(
+            releases[j]["published_at"], "%Y-%m-%dT%H:%M:%SZ")
         release = {
             "id": str(releases[j]["id"]),
             "name": str(releases[j]["name"]),
@@ -303,9 +308,12 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
             release["if_prerelease_str"] = "PreRelease"
         release_name = rename_rule.replace("**id**", release["id"])
         release_name = release_name.replace("**name**", release["name"])
-        release_name = release_name.replace("**tag_name**", release["tag_name"])
-        release_name = release_name.replace("**if_prerelease_bool**", release["if_prerelease_bool"])
-        release_name = release_name.replace("**if_prerelease_str**", release["if_prerelease_str"])
+        release_name = release_name.replace(
+            "**tag_name**", release["tag_name"])
+        release_name = release_name.replace(
+            "**if_prerelease_bool**", release["if_prerelease_bool"])
+        release_name = release_name.replace(
+            "**if_prerelease_str**", release["if_prerelease_str"])
         release_name = release_name.replace("**year**", release["year"])
         release_name = release_name.replace("**month**", release["month"])
         release_name = release_name.replace("**day**", release["day"])
@@ -343,7 +351,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                 sync_info[repo]["releases"][str(releases[j]["id"])][
                     "name"] + ".md"):
             os.rename(config["storge_dir"] + repo.replace("/", " ") + "/" +
-                      sync_info[repo]["releases"][str(releases[j]["id"])]["name"] + ".md",
+                      sync_info[repo]["releases"][str(
+                          releases[j]["id"])]["name"] + ".md",
                       config["storge_dir"] + repo.replace("/", " ") + "/" + release_name + ".md")
         if releases[j]["prerelease"] is True and sync_prereleases is False:
             continue
@@ -351,13 +360,15 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                 datetime.datetime.strptime(releases[j]["published_at"], "%Y-%m-%dT%H:%M:%SZ").timetuple()) < add_time:
             continue
         if not os.path.exists(config["storge_dir"] + repo.replace("/", " ") + "/" + release_name):
-            os.mkdir(config["storge_dir"] + repo.replace("/", " ") + "/" + release_name)
+            os.mkdir(config["storge_dir"] +
+                     repo.replace("/", " ") + "/" + release_name)
         # 下载二进制文件
         print(Fore.CYAN + "正在下载Release二进制文件..." + Style.RESET_ALL)
         if sync_info[repo]["releases"][str(releases[j]["id"])]["assets"] is False:
             for k in range(0, len(releases[j]["assets"])):
                 url = releases[j]["assets"][k]["browser_download_url"]
-                url = url.replace("https://github.com/", config["github_file_download_proxy"])
+                url = url.replace("https://github.com/",
+                                  config["github_file_download_proxy"])
                 fname = releases[j]["assets"][k]["name"]
                 if len(fname) <= 30:
                     title = fname
@@ -365,6 +376,7 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                     title = fname[0:13] + "..." + fname[len(fname) - 14:]
                 download_result = False
                 for m in range(0, 3):
+                    print(m)
                     # noinspection PyBroadException
                     try:
                         dl_result = download(url, title + "(" + str(m) + ")",
@@ -381,7 +393,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                         "err": -3
                     }
                 time.sleep(config["timeout"])
-            sync_info[repo]["releases"][str(releases[j]["id"])]["assets"] = True
+            sync_info[repo]["releases"][str(
+                releases[j]["id"])]["assets"] = True
             save_sync_info()
         # 保存Release Note
         if sync_release_note is True and sync_info[repo]["releases"][str(releases[j]["id"])]["release_note"] is False:
@@ -390,7 +403,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
             if releases[j]["body"] is not None:
                 release_note_file.write(releases[j]["body"])
             release_note_file.close()
-            sync_info[repo]["releases"][str(releases[j]["id"])]["release_note"] = True
+            sync_info[repo]["releases"][str(
+                releases[j]["id"])]["release_note"] = True
             save_sync_info()
         # 下载zip归档
         print(Fore.CYAN + "正在下载Release zip归档..." + Style.RESET_ALL)
@@ -413,7 +427,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                 return {
                     "err": -3
                 }
-            sync_info[repo]["releases"][str(releases[j]["id"])]["zipball"] = True
+            sync_info[repo]["releases"][str(
+                releases[j]["id"])]["zipball"] = True
             save_sync_info()
         # 下载tar归档
         print(Fore.CYAN + "正在下载Release tar归档..." + Style.RESET_ALL)
@@ -436,7 +451,8 @@ def sync_release_page(repo: str, sync_prereleases: bool, sync_zipball: bool, syn
                 return {
                     "err": -3
                 }
-            sync_info[repo]["releases"][str(releases[j]["id"])]["tarball"] = True
+            sync_info[repo]["releases"][str(
+                releases[j]["id"])]["tarball"] = True
             save_sync_info()
     if len(releases) < 100:
         if_end_page = True
@@ -487,15 +503,19 @@ def sync_source_code(repo: str) -> dict:
     if not os.path.exists(config["storge_dir"] + repo.replace("/", " ")):
         os.mkdir(config["storge_dir"] + repo.replace("/", " "))
     if not os.path.exists(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"):
-        os.mkdir(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code")
+        os.mkdir(config["storge_dir"] +
+                 repo.replace("/", " ") + "/" + "source code")
     print(Fore.CYAN + "正在拉取源码..." + Style.RESET_ALL)
     # noinspection PyBroadException
     try:
-        repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+        repo_object = Repo(os.path.abspath(
+            config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
     except BaseException:
-        git = Git(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+        git = Git(os.path.abspath(
+            config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
         git.init()
-        repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+        repo_object = Repo(os.path.abspath(
+            config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
     g = repo_object.git
     for j in range(0, 3):
         try:
@@ -518,19 +538,24 @@ def sync_source_code(repo: str) -> dict:
             input_choice = False
             break
         else:
-            print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+            print(Fore.RED + Back.LIGHTBLUE_EX +
+                  "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
             os.system("pause")
     if input_choice:
         if not os.path.exists(config["storge_dir"] + repo.replace("/", " ")):
             os.mkdir(config["storge_dir"] + repo.replace("/", " "))
         if not os.path.exists(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"):
-            os.mkdir(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code")
+            os.mkdir(config["storge_dir"] +
+                     repo.replace("/", " ") + "/" + "source code")
         try:
-            repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+            repo_object = Repo(os.path.abspath(
+                config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
         except BaseException:
-            git = Git(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+            git = Git(os.path.abspath(
+                config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
             git.init()
-            repo_object = Repo(os.path.abspath(config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
+            repo_object = Repo(os.path.abspath(
+                config["storge_dir"] + repo.replace("/", " ") + "/" + "source code"))
         g = repo_object.git
         for j in range(0, 3):
             try:
@@ -627,8 +652,10 @@ while True:
         new_repo = {}
         while True:
             print_title()
-            new_repo["repo"] = input("请输入仓库主页完整url或者「owner/repo」格式(仅支持GitHub):\n")
-            new_repo["repo"] = new_repo["repo"].replace("https://github.com/", "")
+            new_repo["repo"] = input(
+                "请输入仓库主页完整url或者「owner/repo」格式(仅支持GitHub):\n")
+            new_repo["repo"] = new_repo["repo"].replace(
+                "https://github.com/", "")
             if new_repo["repo"][-1:] == "/":
                 new_repo["repo"] = new_repo["repo"][0:-1]
             is_in_list = False
@@ -637,7 +664,8 @@ while True:
                     is_in_list = True
                     break
             if is_in_list:
-                print(Fore.RED + Back.LIGHTBLUE_EX + "该仓库已在同步列表,请勿重复添加." + Style.RESET_ALL)
+                print(Fore.RED + Back.LIGHTBLUE_EX +
+                      "该仓库已在同步列表,请勿重复添加." + Style.RESET_ALL)
                 os.system("pause")
             else:
                 check_repo_result = check_repo(new_repo["repo"])
@@ -673,7 +701,8 @@ while True:
                     os.system("pause")
         while True:
             print_title()
-            input_new_repo_if_sync_releases = input("是否同步Release(「True」/「False」):\n")
+            input_new_repo_if_sync_releases = input(
+                "是否同步Release(「True」/「False」):\n")
             if input_new_repo_if_sync_releases.lower() in ["t", "true"]:
                 new_repo["sync_releases"] = True
                 break
@@ -681,12 +710,14 @@ while True:
                 new_repo["sync_releases"] = False
                 break
             else:
-                print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                print(Fore.RED + Back.LIGHTBLUE_EX +
+                      "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                 os.system("pause")
         if new_repo["sync_releases"] is True:
             while True:
                 print_title()
-                input_new_repo_if_sync_prereleases = input("是否同步PreRelease(「True」/「False」):\n")
+                input_new_repo_if_sync_prereleases = input(
+                    "是否同步PreRelease(「True」/「False」):\n")
                 if input_new_repo_if_sync_prereleases in ["t", "true"]:
                     new_repo["sync_prereleases"] = True
                     break
@@ -694,11 +725,13 @@ while True:
                     new_repo["sync_prereleases"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_zipball = input("是否同步Release的zip归档(「True」/「False」):\n")
+                input_new_repo_if_sync_zipball = input(
+                    "是否同步Release的zip归档(「True」/「False」):\n")
                 if input_new_repo_if_sync_zipball in ["t", "true"]:
                     new_repo["sync_zipball"] = True
                     break
@@ -706,11 +739,13 @@ while True:
                     new_repo["sync_zipball"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_tarball = input("是否同步Release的tar归档(「True」/「False」):\n")
+                input_new_repo_if_sync_tarball = input(
+                    "是否同步Release的tar归档(「True」/「False」):\n")
                 if input_new_repo_if_sync_tarball in ["t", "true"]:
                     new_repo["sync_tarball"] = True
                     break
@@ -718,11 +753,13 @@ while True:
                     new_repo["sync_tarball"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_release_note = input("是否同步Release note(「True」/「False」):\n")
+                input_new_repo_if_sync_release_note = input(
+                    "是否同步Release note(「True」/「False」):\n")
                 if input_new_repo_if_sync_release_note in ["t", "true"]:
                     new_repo["sync_release_note"] = True
                     break
@@ -730,11 +767,13 @@ while True:
                     new_repo["sync_release_note"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_ignore_release_before = input("是否忽略在此之前发布的Release(「True」/「False」):\n")
+                input_new_repo_if_ignore_release_before = input(
+                    "是否忽略在此之前发布的Release(「True」/「False」):\n")
                 if input_new_repo_if_ignore_release_before in ["t", "true"]:
                     input_new_repo_if_ignore_release_before = True
                     break
@@ -742,7 +781,8 @@ while True:
                     input_new_repo_if_ignore_release_before = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             if input_new_repo_if_ignore_release_before is True:
                 new_repo["ignore_releases_before"] = int(time.time())
@@ -776,7 +816,8 @@ while True:
                 temp = temp.replace("**m**", "")
                 temp = temp.replace("**s**", "")
                 if "\\" in temp or "/" in temp or ":" in temp or "*" in temp or "<" in temp or ">" in temp or "|" in temp:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,不得包含\\/:*<>|)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,不得包含\\/:*<>|)." + Style.RESET_ALL)
                     os.system("pause")
                 else:
                     break
@@ -791,12 +832,14 @@ while True:
                 new_repo["sync_source_code"] = False
                 break
             else:
-                print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                print(Fore.RED + Back.LIGHTBLUE_EX +
+                      "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                 os.system("pause")
         repo_list.append(new_repo)
         save_repo_list()
         print_title()
-        print("\r" + Fore.GREEN + "储存库已添加到同步列表!\n" + Style.RESET_ALL + json.dumps(new_repo))
+        print("\r" + Fore.GREEN + "储存库已添加到同步列表!\n" +
+              Style.RESET_ALL + json.dumps(new_repo))
         os.system("pause")
     elif choice == "3":
         print_title()
@@ -813,7 +856,8 @@ while True:
         os.system("pause")
     elif choice == "4":
         print_title()
-        new_repo = {"repo": input("请输入仓库主页完整url或者「owner/repo」格式(仅支持GitHub):\n")}
+        new_repo = {"repo": input(
+            "请输入仓库主页完整url或者「owner/repo」格式(仅支持GitHub):\n")}
         new_repo["repo"] = new_repo["repo"].replace("https://github.com/", "")
         if new_repo["repo"][-1:] == "/":
             new_repo["repo"] = new_repo["repo"][0:-1]
@@ -825,12 +869,14 @@ while True:
                 repo_num = i
                 break
         if not is_in_list:
-            print(Fore.RED + Back.LIGHTBLUE_EX + "该仓库不在同步列表,请先添加." + Style.RESET_ALL)
+            print(Fore.RED + Back.LIGHTBLUE_EX +
+                  "该仓库不在同步列表,请先添加." + Style.RESET_ALL)
             os.system("pause")
 
         while True:
             print_title()
-            input_new_repo_if_sync_releases = input("是否同步Release(「True」/「False」):\n")
+            input_new_repo_if_sync_releases = input(
+                "是否同步Release(「True」/「False」):\n")
             if input_new_repo_if_sync_releases.lower() in ["t", "true"]:
                 new_repo["sync_releases"] = True
                 break
@@ -838,12 +884,14 @@ while True:
                 new_repo["sync_releases"] = False
                 break
             else:
-                print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                print(Fore.RED + Back.LIGHTBLUE_EX +
+                      "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                 os.system("pause")
         if new_repo["sync_releases"] is True:
             while True:
                 print_title()
-                input_new_repo_if_sync_prereleases = input("是否同步PreRelease(「True」/「False」):\n")
+                input_new_repo_if_sync_prereleases = input(
+                    "是否同步PreRelease(「True」/「False」):\n")
                 if input_new_repo_if_sync_prereleases in ["t", "true"]:
                     new_repo["sync_prereleases"] = True
                     break
@@ -851,11 +899,13 @@ while True:
                     new_repo["sync_prereleases"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_zipball = input("是否同步Release的zip归档(「True」/「False」):\n")
+                input_new_repo_if_sync_zipball = input(
+                    "是否同步Release的zip归档(「True」/「False」):\n")
                 if input_new_repo_if_sync_zipball in ["t", "true"]:
                     new_repo["sync_zipball"] = True
                     break
@@ -863,11 +913,13 @@ while True:
                     new_repo["sync_zipball"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_tarball = input("是否同步Release的tar归档(「True」/「False」):\n")
+                input_new_repo_if_sync_tarball = input(
+                    "是否同步Release的tar归档(「True」/「False」):\n")
                 if input_new_repo_if_sync_tarball in ["t", "true"]:
                     new_repo["sync_tarball"] = True
                     break
@@ -875,11 +927,13 @@ while True:
                     new_repo["sync_tarball"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_sync_release_note = input("是否同步Release note(「True」/「False」):\n")
+                input_new_repo_if_sync_release_note = input(
+                    "是否同步Release note(「True」/「False」):\n")
                 if input_new_repo_if_sync_release_note in ["t", "true"]:
                     new_repo["sync_release_note"] = True
                     break
@@ -887,11 +941,13 @@ while True:
                     new_repo["sync_release_note"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             while True:
                 print_title()
-                input_new_repo_if_ignore_release_before = input("是否忽略在此之前发布的Release(「True」/「False」):\n")
+                input_new_repo_if_ignore_release_before = input(
+                    "是否忽略在此之前发布的Release(「True」/「False」):\n")
                 if input_new_repo_if_ignore_release_before in ["t", "true"]:
                     input_new_repo_if_ignore_release_before = True
                     break
@@ -899,7 +955,8 @@ while True:
                     input_new_repo_if_ignore_release_before = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             if input_new_repo_if_ignore_release_before is True:
                 new_repo["ignore_releases_before"] = int(time.time())
@@ -933,7 +990,8 @@ while True:
                 temp = temp.replace("**m**", "")
                 temp = temp.replace("**s**", "")
                 if "\\" in temp or "/" in temp or ":" in temp or "*" in temp or "<" in temp or ">" in temp or "|" in temp:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,不得包含\\/:*<>|)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,不得包含\\/:*<>|)." + Style.RESET_ALL)
                     os.system("pause")
                 else:
                     break
@@ -948,19 +1006,17 @@ while True:
                 new_repo["sync_source_code"] = False
                 break
             else:
-                print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                print(Fore.RED + Back.LIGHTBLUE_EX +
+                      "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                 os.system("pause")
         repo_list.pop(repo_num)
         repo_list.append(new_repo)
         save_repo_list()
         print_title()
-        print("\r" + Fore.GREEN + "设置已保存!\n" + Style.RESET_ALL + json.dumps(new_repo))
+        print("\r" + Fore.GREEN + "设置已保存!\n" +
+              Style.RESET_ALL + json.dumps(new_repo))
         os.system("pause")
-
     elif choice == "5":
-        print_title()
-        # ToDo 删除储存库
-    elif choice == "6":
         print_title()
         choice = input("0: 返回\n"
                        "1: 是否启用ssl vertify: " + str(config["ssl_vertify"]) + "\n" +
@@ -977,7 +1033,8 @@ while True:
         elif choice == "1":
             while True:
                 print_title()
-                input_new_repo_if_sync_release_note = input("是否启用ssl vertify(「True」/「False」):\n")
+                input_new_repo_if_sync_release_note = input(
+                    "是否启用ssl vertify(「True」/「False」):\n")
                 if input_new_repo_if_sync_release_note in ["t", "true"]:
                     config["ssl_vertify"] = True
                     break
@@ -985,7 +1042,8 @@ while True:
                     config["ssl_vertify"] = False
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入「True」/「False」)." + Style.RESET_ALL)
                     os.system("pause")
             save_config()
         elif choice == "2":
@@ -1003,7 +1061,8 @@ while True:
                     load_sync_info()
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请输入存在的目录)." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请输入存在的目录)." + Style.RESET_ALL)
                     os.system("pause")
         elif choice == "3":
             while True:
@@ -1020,7 +1079,8 @@ while True:
                     save_config()
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请重新输入." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请重新输入." + Style.RESET_ALL)
                     os.system("pause")
         elif choice == "4":
             while True:
@@ -1037,7 +1097,8 @@ while True:
                     save_config()
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请重新输入." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请重新输入." + Style.RESET_ALL)
                     os.system("pause")
         elif choice == "5":
             while True:
@@ -1054,7 +1115,8 @@ while True:
                     save_config()
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请重新输入." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请重新输入." + Style.RESET_ALL)
                     os.system("pause")
         elif choice == "6":
             while True:
@@ -1071,7 +1133,8 @@ while True:
                     save_config()
                     break
                 else:
-                    print(Fore.RED + Back.LIGHTBLUE_EX + "无效的输入,请重新输入." + Style.RESET_ALL)
+                    print(Fore.RED + Back.LIGHTBLUE_EX +
+                          "无效的输入,请重新输入." + Style.RESET_ALL)
                     os.system("pause")
         elif choice == "7":
             while True:
@@ -1084,8 +1147,8 @@ while True:
                 config["timeout"] = timeout
                 save_config()
                 break
-        elif choice == "7":
-            print_title()
-            print("本项目以MIT协议发布于 github.com/xvzhenduo/Github-repo-sync\n"
-                  "如有问题请题issue或者发邮件至hq750303@163.com")
-            os.system("pause")
+    elif choice == "6":
+        print_title()
+        print("本项目以MIT协议发布于 github.com/xvzhenduo/Github-repo-sync\n"
+              "如有问题请题issue或者发邮件至hq750303@163.com")
+        os.system("pause")

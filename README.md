@@ -4,9 +4,12 @@
 
 ## 特点
 - 操作简单
+- 支持登录
 - 一键同步，易于使用
+- 出错自动重试
 - GitHub API使用条件请求
 - 支持自定义同步的内容
+- 支持镜像源加速
 - 支持自定义保存的目录结构
 - ……
 
@@ -18,7 +21,7 @@
 
 ## 如何登录GitHub账户
 **请务必登录GitHub账户因为不登陆单个IP GitHub API限制每小时仅60个请求，容易触发Rate Limit**
-你的用户名和personal access token都会保存在同目录下的`config.json`中所以请不要将`config.json`分享给他人，一面你的账户被盗用，在反馈提交Issue时请删除里面的token。
+你的用户名和personal access token都会保存在同目录下的`config.json`中所以请不要将`config.json`分享给他人，以免你的账户被盗用，在反馈提交Issue时请删除里面的token。
 ###### 1.创建personal access token
 步骤:
 - 右上角头像 > Settings > Developer settings > Personal access tokens > Generate new token
@@ -41,7 +44,10 @@
 你可以在`6: 设置`中配置GitHub镜像,设置是否启用ssl vertify，Releases下载间隔等，配置界面有详细说明。
 
 ## 如何更改储存位置
-在`6: 设置`中更改
+在`5: 设置`中更改
 
 ## 如何更改一个仓库的同步设置
 在`4: 修改储存库同步设置`中更改
+
+## 如何不再同步一个仓库
+在`4: 修改储存库同步设置`中将同步release和源码都设为false，这不会删除已同步的文件和同步记录
